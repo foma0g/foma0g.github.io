@@ -21,6 +21,9 @@ const switchPlayer = () => {
 	currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
 };
 
+const player = 'O';
+const bot = 'X';
+
 const checkWin = () => {
 	for (let i = 0; i < winningCombos.length; i++) {
 		const [a, b, c] = winningCombos[i];
@@ -88,62 +91,4 @@ function evaluate() {
 
     for (let i = 0; i < lines.length; i++) {
         const [a, b, c] = lines[i];
-        if (board[a] !== '' && board[a] === board[b] && board[a] === board[c]) {
-            if (board[a] === bot) {
-                return 10;
-            } else {
-                return -10;
-            }
-        }
-    }
-    return 0;
-}
-
-function makeMove(cell, index) {
-    board[index] = currentPlayer;
-    cell.textContent = currentPlayer;
-    const winner = checkWin();
-    if (winner !== null) {
-        gameOver = true;
-        if (winner === 'X') {
-            message.textContent = 'You win!';
-        } else {
-            message.textContent = 'You lose!';
-        }
-        return;
-    }
-    switchPlayer();
-    const bestMove = minimax(0, -Infinity, Infinity, true);
-    board[bestMove] = currentPlayer;
-    cells[bestMove].textContent = currentPlayer;
-    const computerWinner = checkWin();
-    if (computerWinner !== null) {
-        gameOver = true;
-        if (computerWinner === 'X') {
-            message.textContent = 'You win!';
-        } else {
-            message.textContent = 'You lose!';
-        }
-        return;
-    }
-    switchPlayer();
-}
-
-cells.forEach((cell, index) => {
-	cell.addEventListener('click', () => {
-		if (!gameOver && board[index] === '') {
-			makeMove(cell, index);
-		}
-	});
-});
-
-resetButton.addEventListener('click', () => {
-	board.fill('');
-	cells.forEach(cell => {
-		cell.textContent = '';
-	});
-	message.textContent = '';
-	currentPlayer = 'X';
-	gameOver = false;
-});
-
+        if (board
