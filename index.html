@@ -2,100 +2,101 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Крестики-нолики</title>
+    <title>Tic Tac Toe</title>
     <style>
       body {
+        font-family: Arial, sans-serif;
         background-color: #f2f2f2;
-        font-family: "Segoe UI", sans-serif;
-        text-align: center;
       }
-
       h1 {
-        color: #4d4d4d;
-      }
-
-      .container {
-        display: inline-block;
-        margin: 20px auto;
-      }
-
-      .cell {
-        display: inline-block;
-        width: 70px;
-        height: 70px;
-        border: 2px solid #4d4d4d;
-        font-size: 48px;
-        line-height: 70px;
         text-align: center;
-        margin-right: -2px;
-        margin-bottom: -2px;
-        cursor: pointer;
-      }
-
-      .cell:hover {
-        background-color: #e6e6e6;
-      }
-
-      .cell.X {
-        color: #d80000;
-      }
-
-      .cell.O {
-        color: #008aff;
-      }
-
-      .row:after {
-        content: "";
-        display: block;
-        clear: both;
-      }
-
-      #reset {
+        font-size: 36px;
         margin-top: 20px;
-        background-color: #4d4d4d;
+        margin-bottom: 20px;
+      }
+      .game-board {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .cell {
+        width: 100px;
+        height: 100px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 60px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .cell:hover {
+        background-color: #f2f2f2;
+      }
+      .cell.x {
+        color: #f00;
+      }
+      .cell.o {
+        color: #00f;
+      }
+      .message {
+        text-align: center;
+        font-size: 36px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      .button {
+        display: block;
+        margin: 0 auto;
+        padding: 10px 20px;
+        background-color: #007bff;
         color: #fff;
         border: none;
-        padding: 10px 20px;
-        font-size: 18px;
-        border-radius: 5px;
+        border-radius: 4px;
+        font-size: 20px;
         cursor: pointer;
+        transition: all 0.3s ease;
       }
-
-      #reset:hover {
-        background-color: #666;
-      }
-
-      #win {
-        display: none;
-        font-size: 48px;
-        color: #4d4d4d;
-        margin-top: 20px;
+      .button:hover {
+        background-color: #0056b3;
       }
     </style>
   </head>
   <body>
-    <h1>Крестики-нолики с ботом</h1>
-    <div class="container">
-      <div class="row">
-        <div class="cell" data-cell-index="0"></div>
-        <div class="cell" data-cell-index="1"></div>
-        <div class="cell" data-cell-index="2"></div>
-      </div>
-      <div class="row">
-        <div class="cell" data-cell-index="3"></div>
-        <div class="cell" data-cell-index="4"></div>
-        <div class="cell" data-cell-index="5"></div>
-      </div>
-      <div class="row">
-        <div class="cell" data-cell-index="6"></div>
-        <div class="cell" data-cell-index="7"></div>
-        <div class="cell" data-cell-index="8"></div>
-      </div>
-    </div>
-    <button id="reset">Сбросить</button>
-    <div id="win"></div>
+    <h1>Tic Tac Toe</h1>
+    <div class="game-board"></div>
+    <div class="message"></div>
+    <button class="button" id="reset">Reset</button>
+    <button class="button" id="switch">Switch</button>
+    <script>
+      const board = ["", "", "", "", "", "", "", "", ""];
+      const cellElements = document.querySelectorAll(".cell");
+      const messageElement = document.querySelector(".message");
+      const resetButton = document.getElementById("reset");
+      const switchButton = document.getElementById("switch");
+      let currentPlayer = "x";
+      let isGameActive = true;
+      let isBotTurn = false;
 
-    <script src="index.js"></script>
-  </body>
-</html>
+      const winningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      function handleCellClick(index) {
+        if (board[index] !== "" || !isGameActive || isBotTurn) {
+          return;
+        }
+
+        board[index] = currentPlayer;
+        document.getElementById(`cell-${index}`).classList.add(currentPlayer);
+        checkGameResult();
+       
