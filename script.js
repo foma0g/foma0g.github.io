@@ -1,80 +1,134 @@
-// Получаем ссылки на ячейки игрового поля, на элементы сообщений и на кнопки
-const cells = document.querySelectorAll(".cell");
-const messageDisplay = document.getElementById("message");
-const turnDisplay = document.getElementById("turn");
-const resetButton = document.getElementById("reset");
-const switchButton = document.getElementById("switch");
+const board = ['', '', '', '', '', '', '', '', ''];
+const cells = document.querySelectorAll('.cell');
+const message = document.getElementById('message');
+const resetButton = document.getElementById('reset');
 
-// Определяем массив для хранения значений ячеек
-let boardValues = [-1, -1, -1, -1, -1, -1, -1, -1, -1];
+let currentPlayer = 'X';
+let gameOver = false;
 
-// Определяем константы для значений ячеек
-const EMPTY = -1;
-const HUMAN = 1;
-const BOT = 0;
+const winningCombos = [
+	[0, 1, 2],
+	[3, 4, 5],
+	[6, 7, 8],
+	[0, 3, 6],
+	[1, 4, 7],
+	[2, 5, 8],
+	[0, 4, 8],
+	[2, 4, 6]
+];
 
-// Определяем константы для сообщений
-const HUMAN_WIN_MESSAGE = "You win!";
-const BOT_WIN_MESSAGE = "You lose.";
-const DRAW_MESSAGE = "Draw.";
+const switchPlayer = () => {
+	currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+};
 
-// Определяем переменные для отслеживания текущего игрока и состояния игры
-let currentPlayer = HUMAN;
-let gameInProgress = true;
-
-// Функция для смены игрока
-function switchPlayer() {
-	currentPlayer = (currentPlayer === HUMAN) ? BOT : HUMAN;
-	turnDisplay.textContent = (currentPlayer === HUMAN) ? "Your turn" : "Bot's turn";
-}
-
-// Функция для получения доступных ходов на текущем игровом поле
-function getAvailableMoves(board) {
-	return board.reduce((moves, cell, index) => {
-		if (cell === EMPTY) {
-			moves.push(index);
+const checkWin = () => {
+	for (let i = 0; i < winningCombos.length; i++) {
+		const [a, b, c] = winningCombos[i];
+		if (board[a] === board[b] && board[b] === board[c] && board[a] !== '') {
+			return board[a];
 		}
-		return moves;
-	}, []);
-}
+	}
+	return null;
+};
 
-// Функция для оценки текущего игрового состояния для бота
-function evaluate(board, depth) {
-	// Определяем возможные выигрышные комбинации
-	const lines = [
-		[0, 1, 2],
-		[3, 4, 5],
-		[6, 7, 8],
-		[0, 3, 6],
-		[1, 4, 7],
-		[2, 5, 8],
-		[0, 4, 8],
-		[2, 4, 6]
-	];
+const minimax = (depth, alpha, beta, maximizingPlayer) => {
+	const result = checkWin();
+	if (result !== null) {
+		if (result === 'X') {
+			return { score: -10 };
+		} else if (result === 'O') {
+			return { score: 10 };
+		} else {
+			return { score: 0 };
+		}
+	}
 
-	// Проверяем наличие победы в текущем состоянии игры
-	for (let i = 0; i < lines.length; i++) {
-		const [a, b, c] = lines[i];
-		if (board[a] === board[b] && board[b] === board[c]) {
-			if (board[a] === BOT) {
-				return 10 - depth;
-			} else if (board[a] === HUMAN) {
-				return depth - 10;
+	if (maximizingPlayer) {
+		let bestScore = -Infinity;
+		let bestMove = null;
+		for (let i = 0; i < board.length; i++) {
+			if (board[i] === '') {
+				board[i] = 'O';
+				const score = minimax(depth + 1, alpha, beta, false).score;
+				board[i] = '';
+				if (score > bestScore) {
+					bestScore = score;
+					bestMove = i;
+				}
+				alpha = Math.max(alpha, bestScore);
+				if (beta <= alpha) {
+					break;
+				}
 			}
 		}
+		return depth === 0 ? bestMove : { score: bestScore };
+	} else {
+		let bestScore = Infinity;
+		let bestMove = null;
+		for (let i = 0; i < board.length; i++) {
+			if (board[i] === '') {
+				board[i] = 'X';
+				const score = minimax(depth + 1, alpha, beta, true).score;
+				board[i] = '';
+				if (score < bestScore) {
+					bestScore = score;
+					bestMove = i;
+				}
+				beta = Math.min(beta, bestScore);
+				if (beta <= alpha) {
+					break;
+				}
+			}
+		}
+		return depth === 0 ? bestMove : { score: bestScore };
 	}
+};
 
-	// Если победителя нет, то возвращаем ничью
-	return 0;
-}
-
-// Функция для минимакс-оценки текущего состояния игры
-function minimax(board, depth, alpha, beta, maximizingPlayer) {
-	// Проверяем наличие победителя в текущем состоянии игры
-	const score = evaluate(board, depth);
-	if (score !== 0) {
-		return score;
+const makeMove = (cell, index) => {
+	board[index] = currentPlayer;
+	cell.textContent = currentPlayer;
+	const winner = checkWin();
+	if (winner !== null) {
+		gameOver = true;
+		if (winner === 'X') {
+			message.textContent = 'You win!';
+		} else {
+			message.textContent = 'You lose!';
+		}
+		return;
 	}
+	switchPlayer();
+	const bestMove = minimax(0, -Infinity, Infinity, true);
+	board[bestMove] = currentPlayer;
+	cells[bestMove].textContent = currentPlayer;
+	const computerWinner = checkWin();
+	if (computerWinner !== null) {
+		gameOver = true;
+		if (computerWinner === 'X') {
+			message.textContent = 'You win!';
+		} else {
+			message.textContent = 'You lose!';
+		}
+		return;
+	}
+	switchPlayer();
+};
 
-	// Проверяем наличие свободных ячеек на игровом поле
-	const availableMoves = getAvailableMoves(board);
+cells.forEach((cell, index) => {
+	cell.addEventListener('click', () => {
+		if (!gameOver && board[index] === '') {
+			makeMove(cell, index);
+		}
+	});
+});
+
+resetButton.addEventListener('click', () => {
+	board.fill('');
+	cells.forEach(cell => {
+		cell.textContent = '';
+	});
+	message.textContent = '';
+	currentPlayer = 'X';
+	gameOver = false;
+});
+

@@ -1,70 +1,46 @@
-body {
-	background-color: #222;
-	color: #fff;
-	font-family: Arial, sans-serif;
-}
-
-#container {
-	margin: 0 auto;
-	width: 80%;
-	max-width: 800px;
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 50px;
 }
 
 h1 {
-	text-align: center;
-	margin-top: 30px;
+	font-size: 36px;
 	margin-bottom: 50px;
 }
 
-#board {
+#game-board {
 	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
+	flex-direction: column;
+}
+
+.row {
+	display: flex;
 }
 
 .cell {
+	width: 100px;
+	height: 100px;
+	border: 1px solid black;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 100px;
-	height: 100px;
-	border: 2px solid #fff;
-	font-size: 4em;
+	font-size: 64px;
 	cursor: pointer;
 }
 
-.x {
-	color: #ff0;
-}
-
-.o {
-	color: #0ff;
+.cell:hover {
+	background-color: lightgray;
 }
 
 #message {
-	text-align: center;
-	margin-top: 30px;
-	margin-bottom: 30px;
-	font-size: 2em;
+	margin-top: 50px;
+	font-size: 24px;
 }
 
-#turn {
-	text-align: center;
-	margin-bottom: 30px;
-	font-size: 2em;
-}
-
-button {
-	display: block;
-	margin: 0 auto;
-	font-size: 2em;
-	padding: 10px 20px;
-	background-color: #555;
-	color: #fff;
-	border: none;
+#reset {
+	margin-top: 50px;
+	font-size: 24px;
 	cursor: pointer;
-}
-
-button:hover {
-	background-color: #333;
 }
